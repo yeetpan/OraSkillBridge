@@ -29,19 +29,3 @@ bin/
 
 ### Mac OS ###
 .DS_Store
-
-### Java Build Tools ###
-# Maven
-target/
-
-# Gradle
-.gradle/
-build/
-
-### Logs and Temporary Files ###
-*.log
-*.tmp
-*.bak
-*.swp
-*~
-
