@@ -155,3 +155,47 @@ BEGIN
   END IF;
 END;
 /
+
+--POPULATING THE DATA
+--Sample Student Data
+INSERT INTO Student (name, email, college) VALUES ('Alice Johnson', 'alice@example.com', 'XYZ University');
+INSERT INTO Student (name, email, college) VALUES ('Bob Smith', 'bob@example.com', 'ABC Institute');
+INSERT INTO Student (name, email, college) VALUES ('Charlie Davis', 'charlie@edu.org', 'Tech University');
+INSERT INTO Student (name, email, college) VALUES ('Diana Lee', 'diana@campusmail.com', 'MIT');
+INSERT INTO Student (name, email, college) VALUES ('Ethan Hunt', 'ethan@uniworld.edu', 'Stanford University');
+--Sample Mentor Data
+INSERT INTO Mentor (name, email, expertise_id) VALUES ('Dr. Emily Ray', 'emily@mentors.com', 1);
+INSERT INTO Mentor (name, email, expertise_id) VALUES ('Mr. John Doe', 'john@mentors.com', 3);
+INSERT INTO Mentor (name, email, expertise_id) VALUES ('Ms. Sarah Kim', 'sarah.kim@mentors.com', 2);
+INSERT INTO Mentor (name, email, expertise_id) VALUES ('Prof. Anil Mehta', 'anil@iit.edu', 4);
+INSERT INTO Mentor (name, email, expertise_id) VALUES ('Dr. Julia Stone', 'jstone@mentorhub.com', 5);
+--Sample Internship Data
+INSERT INTO Internship (org_name, title, capacity, description, deadline)
+VALUES ('Tech Corp', 'Backend Developer Intern', 3, 'Work on backend APIs and microservices.', TO_DATE('2025-07-15', 'YYYY-MM-DD'));
+
+INSERT INTO Internship (org_name, title, capacity, description, deadline)
+VALUES ('CyberSecure Inc.', 'Security Analyst Intern', 2, 'Assist in penetration testing and audit logs.', TO_DATE('2025-08-01', 'YYYY-MM-DD'));
+
+INSERT INTO Internship (org_name, title, capacity, description, deadline)
+VALUES ('AI Labs', 'ML Research Intern', 4, 'Support in model training and evaluation.', TO_DATE('2025-07-30', 'YYYY-MM-DD'));
+
+INSERT INTO Internship (org_name, title, capacity, description, deadline)
+VALUES ('WebSolutions', 'Frontend Developer Intern', 5, 'Build responsive web interfaces.', TO_DATE('2025-07-25', 'YYYY-MM-DD'));
+
+INSERT INTO Internship (org_name, title, capacity, description, deadline)
+VALUES ('HealthTech AI', 'Data Science Intern', 2, 'Analyze medical data trends.', TO_DATE('2025-08-05', 'YYYY-MM-DD'));
+--Sample Session_Slot Data
+INSERT INTO Session_Slot (mentor_id, session_date, time, duration, status)
+VALUES (1, TO_DATE('2025-06-20', 'YYYY-MM-DD'), TO_TIMESTAMP('2025-06-20 10:00:00', 'YYYY-MM-DD HH24:MI:SS'), 60, 'Available');
+
+INSERT INTO Session_Slot (mentor_id, session_date, time, duration, status)
+VALUES (2, TO_DATE('2025-06-21', 'YYYY-MM-DD'), TO_TIMESTAMP('2025-06-21 14:00:00', 'YYYY-MM-DD HH24:MI:SS'), 45, 'Available');
+
+INSERT INTO Session_Slot (mentor_id, session_date, time, duration, status)
+VALUES (3, TO_DATE('2025-06-22', 'YYYY-MM-DD'), TO_TIMESTAMP('2025-06-22 09:30:00', 'YYYY-MM-DD HH24:MI:SS'), 30, 'Booked');
+
+INSERT INTO Session_Slot (mentor_id, session_date, time, duration, status)
+VALUES (4, TO_DATE('2025-06-23', 'YYYY-MM-DD'), TO_TIMESTAMP('2025-06-23 15:00:00', 'YYYY-MM-DD HH24:MI:SS'), 60, 'Available');
+
+INSERT INTO Session_Slot (mentor_id, session_date, time, duration, status)
+VALUES (5, TO_DATE('2025-06-24', 'YYYY-MM-DD'), TO_TIMESTAMP('2025-06-24 11:00:00', 'YYYY-MM-DD HH24:MI:SS'), 30, 'Available');
