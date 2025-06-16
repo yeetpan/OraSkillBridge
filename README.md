@@ -12,6 +12,9 @@
 - **Oracle JDBC Driver (`ojdbc17.jar`)**
 
 ---
+## 🎥 Project Demo
+
+[![Watch the demo](https://img.youtube.com/vi/w2smXvJxYaE/0.jpg)](https://www.youtube.com/watch?v=w2smXvJxYaE)
 
 ## Getting Started
 
