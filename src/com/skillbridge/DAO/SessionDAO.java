@@ -101,7 +101,7 @@ public class SessionDAO {
     }
 
     public static boolean isAlreadyBooked(int studentId, int slotId) {
-        String query = "SELECT COUNT(*) FROM Session WHERE student_id = ? AND slot_id = ?";
+        String query = "SELECT COUNT(*) FROM Stu_Session WHERE student_id = ? AND slot_id = ?";
         try (Connection con = DB.connect();
              PreparedStatement ps = con.prepareStatement(query)) {
             ps.setInt(1, studentId);
@@ -111,7 +111,7 @@ public class SessionDAO {
                 return rs.getInt(1) > 0;
             }
         } catch (SQLException e) {
-            System.err.println("❌ Error checking existing booking: " + e.getMessage());
+            System.err.println(" Error checking existing booking: " + e.getMessage());
         }
         return false;
     }

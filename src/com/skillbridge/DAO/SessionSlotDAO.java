@@ -24,7 +24,7 @@ public class SessionSlotDAO {
                 System.out.println("Session slot inserted successfully.");
             }
         } catch (SQLException e) {
-            System.err.println("Insert failed: " + e.getMessage());
+            e.printStackTrace();
         }
     }
 
@@ -41,7 +41,7 @@ public class SessionSlotDAO {
                 SessionSlot sessionSlot=new SessionSlot();
                 sessionSlot.setSlotId(rs.getInt("slot_id"));
                 sessionSlot.setMentorId(rs.getInt("mentor_id"));
-                sessionSlot.setDate(rs.getDate("date"));
+                sessionSlot.setDate(rs.getDate("session_date"));
                 sessionSlot.setDuration(rs.getInt("duration"));
                 sessionSlot.setTime(rs.getTime("time"));
                 sessionSlot.setStatus(rs.getString("status"));
@@ -49,7 +49,7 @@ public class SessionSlotDAO {
             }
 
         } catch (SQLException e) {
-            System.err.println("Fetch available slots failed: " + e.getMessage());
+            System.out.println(e.getMessage());
         }
 
         return slots;

@@ -2,7 +2,7 @@ package com.skillbridge.queries;
 
 public class SessionSlotQueries {
     public static final String INSERT =
-            "INSERT INTO Session_Slot (mentor_id, date, time, duration, status) VALUES (?, ?, ?, ?, ?)";
+            "INSERT INTO Session_Slot (mentor_id, session_date, time, duration, status) VALUES (?, ?, ?, ?, ?)";
 
     public static final String GET_AVAILABLE_BY_MENTOR =
             "SELECT * FROM Session_Slot WHERE mentor_id = ? AND status = 'Available'";

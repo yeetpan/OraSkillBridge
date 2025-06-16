@@ -59,7 +59,7 @@ public class SessionBookingService {
 
     private static int getTotalBookingCount(int slotId) {
         int count = 0;
-        String query = "SELECT COUNT(*) FROM Session WHERE slot_id = ? ";
+        String query = "SELECT COUNT(*) FROM Stu_Session WHERE slot_id = ? ";
 
         try (Connection con = DB.connect();
              PreparedStatement ps = con.prepareStatement(query)) {

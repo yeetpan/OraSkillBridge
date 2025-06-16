@@ -30,7 +30,7 @@ public class MentorDAO {
             }
             preparedStatement.close();
         } catch (SQLException e) {
-            System.out.println(e.getMessage());
+            e.printStackTrace();
         }
     }
 
