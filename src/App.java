@@ -49,8 +49,8 @@
                 } catch (InvalidMenuChoiceException | StudentNotFoundException | MentorNotFoundException e) {
                     System.out.println(e.getMessage());
                 } catch (SQLException e) {
-                   // System.out.println("Database Error: " + e.getMessage());
-                    e.printStackTrace();
+                    System.out.println("Database Error: " + e.getMessage());
+                    //e.printStackTrace();
                 }
             }
         }
