@@ -3,6 +3,8 @@
 **SkillBridge** is a Java-based console application designed to connect students with mentors, enable internship applications, and manage mentoring sessions effectively. It supports seamless registration, application, booking, and tracking processes via an interactive, menu-driven interface. This version uses **Java + JDBC** and Oracle XE and is organized using a structured package layout under `com.skillbridge.*`.
 
 ---
+## Important note
+**Please run `populate.sql` before running the java classes becase Interests are pre-loaded due to data constraints and sequence and triggers are used to avoid failures.**
 
 ## Table of Contents
 
@@ -202,7 +204,7 @@ java com.skillbridge.App
 
 ## Database Setup
 
-Run the `pop.sql` file using Oracle SQL Developer or any Oracle-compatible SQL CLI tool to:
+Run the `populate.sql` file using Oracle SQL Developer or any Oracle-compatible SQL CLI tool to:
 
 * Create all tables
 * Define sequences and triggers for auto-generating primary keys
@@ -240,7 +242,7 @@ Run the `pop.sql` file using Oracle SQL Developer or any Oracle-compatible SQL C
 Ensure the following configurations are correct:
 
 * Update database credentials inside `com.skillbridge.util.DB.java`
-* Make sure tables exist and are populated as per `pop.sql`
+* Make sure tables exist and are populated as per `populate.sql`
 
 Tables used:
 
