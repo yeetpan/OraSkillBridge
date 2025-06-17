@@ -6,30 +6,29 @@ import com.skillbridge.util.DB;
 
 import java.sql.*;
 import java.util.ArrayList;
-import java.util.Optional;
 
 public class SessionDAO {
 
     public static void createSession(Session session) throws SQLException {
         try (Connection con = DB.connect();
-             PreparedStatement preparedStatement = con.prepareStatement(SessionQueries.INSERT, Statement.RETURN_GENERATED_KEYS)) {
+             PreparedStatement ps = con.prepareStatement(
+                     SessionQueries.INSERT,
+                     new String[]{"booking_id"})) {
 
-            preparedStatement.setInt(1, session.getSlot_id());
-            preparedStatement.setInt(2, session.getStudent_id());
-            preparedStatement.setInt(3, session.getMentor_id());
-            preparedStatement.setString(4, session.getBooking_status());
+            ps.setInt(1, session.getSlot_id());
+            ps.setInt(2, session.getStudent_id());
+            ps.setInt(3, session.getMentor_id());
+            ps.setString(4, session.getBooking_status());
 
-            int rowsAffected = preparedStatement.executeUpdate();
+            int rowsAffected = ps.executeUpdate();
             if (rowsAffected > 0) {
                 System.out.println("Session booked successfully!!");
             }
 
-            try (ResultSet rs = preparedStatement.getGeneratedKeys()) {
-                if(rs.next()){
+            try (ResultSet rs = ps.getGeneratedKeys()) {
+                if (rs.next()) {
                     session.setBooking_id(rs.getInt(1));
                 }
-                } catch (SQLException e) {
-                System.err.println(" Could not fetch booking_id: " + e.getMessage());
             }
         }
     }
@@ -37,19 +36,20 @@ public class SessionDAO {
     public static ArrayList<Session> getSessionsByStudent(int studentId) throws SQLException {
         ArrayList<Session> sessionList = new ArrayList<>();
         try (Connection con = DB.connect();
-             PreparedStatement preparedStatement = con.prepareStatement(SessionQueries.GET_BY_STUDENT)) {
-            preparedStatement.setInt(1, studentId);
-            try (ResultSet rs = preparedStatement.executeQuery()) {
-                while (rs.next()) {
-                    Session session = new Session(
-                            rs.getInt("slot_id"),
-                            rs.getInt("student_id"),
-                            rs.getInt("mentor_id"),
-                            rs.getString("booking_status")
-                    );
-                    session.setBooking_id(rs.getInt("booking_id"));
-                    sessionList.add(session);
-                }
+             PreparedStatement ps = con.prepareStatement(SessionQueries.GET_BY_STUDENT)) {
+
+            ps.setInt(1, studentId);
+            ResultSet rs = ps.executeQuery();
+
+            while (rs.next()) {
+                Session session = new Session(
+                        rs.getInt("slot_id"),
+                        rs.getInt("student_id"),
+                        rs.getInt("mentor_id"),
+                        rs.getString("booking_status")
+                );
+                session.setBooking_id(rs.getInt("booking_id"));
+                sessionList.add(session);
             }
         }
         return sessionList;
@@ -57,18 +57,15 @@ public class SessionDAO {
 
     public static void UpdateSessionStatus(int bookingId, String bookingStatus) throws SQLException {
         try (Connection con = DB.connect();
-             PreparedStatement preparedStatement = con.prepareStatement(SessionQueries.UPDATE_STATUS)) {
-            // Standardize case for database consistency
-            String normalizedStatus = bookingStatus;
-            if (bookingStatus.equalsIgnoreCase("cancelled")) {
-                normalizedStatus = "Cancelled";
-            } else if (bookingStatus.equalsIgnoreCase("completed")) {
-                normalizedStatus = "Completed";
-            }
-            preparedStatement.setString(1, normalizedStatus);
-            preparedStatement.setInt(2, bookingId);
+             PreparedStatement ps = con.prepareStatement(SessionQueries.UPDATE_STATUS)) {
 
-            int rowsAffected = preparedStatement.executeUpdate();
+            String normalizedStatus = bookingStatus.equalsIgnoreCase("cancelled") ? "Cancelled" :
+                    bookingStatus.equalsIgnoreCase("completed") ? "Completed" : bookingStatus;
+
+            ps.setString(1, normalizedStatus);
+            ps.setInt(2, bookingId);
+
+            int rowsAffected = ps.executeUpdate();
             if (rowsAffected > 0) {
                 System.out.println("Session status updated successfully!!");
             }
@@ -77,26 +74,23 @@ public class SessionDAO {
 
     public static ArrayList<Session> getSessionsByBookingId(int bookingId) throws SQLException {
         ArrayList<Session> sessions = new ArrayList<>();
-
         try (Connection con = DB.connect();
-             PreparedStatement preparedStatement = con.prepareStatement("SELECT * FROM Session WHERE booking_id = ?")) {
+             PreparedStatement ps = con.prepareStatement("SELECT * FROM Stu_Session WHERE booking_id = ?")) {
 
-            preparedStatement.setInt(1, bookingId);
+            ps.setInt(1, bookingId);
+            ResultSet rs = ps.executeQuery();
 
-            try (ResultSet rs = preparedStatement.executeQuery()) {
-                while (rs.next()) {
-                    Session session = new Session(
-                            rs.getInt("slot_id"),
-                            rs.getInt("student_id"),
-                            rs.getInt("mentor_id"),
-                            rs.getString("booking_status")
-                    );
-                    session.setBooking_id(rs.getInt("booking_id"));
-                    sessions.add(session);
-                }
+            while (rs.next()) {
+                Session session = new Session(
+                        rs.getInt("slot_id"),
+                        rs.getInt("student_id"),
+                        rs.getInt("mentor_id"),
+                        rs.getString("booking_status")
+                );
+                session.setBooking_id(rs.getInt("booking_id"));
+                sessions.add(session);
             }
         }
-
         return sessions;
     }
 
@@ -104,6 +98,7 @@ public class SessionDAO {
         String query = "SELECT COUNT(*) FROM Stu_Session WHERE student_id = ? AND slot_id = ?";
         try (Connection con = DB.connect();
              PreparedStatement ps = con.prepareStatement(query)) {
+
             ps.setInt(1, studentId);
             ps.setInt(2, slotId);
             ResultSet rs = ps.executeQuery();
@@ -111,10 +106,8 @@ public class SessionDAO {
                 return rs.getInt(1) > 0;
             }
         } catch (SQLException e) {
-            System.err.println(" Error checking existing booking: " + e.getMessage());
+            System.err.println("Error checking existing booking: " + e.getMessage());
         }
         return false;
     }
-
-
 }

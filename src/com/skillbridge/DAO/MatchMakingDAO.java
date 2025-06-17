@@ -12,12 +12,12 @@ public class MatchMakingDAO {
         try (Connection con = DB.connect()) {
 
             // If already matched, skip insert
-            String checkQuery = "SELECT 1 FROM MatchMaking WHERE student_id = ? LIMIT 1";
+            String checkQuery = "SELECT 1 FROM MatchMaking WHERE student_id = ? AND ROWNUM = 1";
             try (PreparedStatement checkStmt = con.prepareStatement(checkQuery)) {
                 checkStmt.setInt(1, student_id);
                 ResultSet rs = checkStmt.executeQuery();
                 if (rs.next()) {
-                    System.out.println(" Student already has match-making data.");
+                    System.out.println("Student already has match-making data.");
                     return;
                 }
             }
@@ -28,15 +28,15 @@ public class MatchMakingDAO {
                 int rowsAffected = insertStmt.executeUpdate();
 
                 if (rowsAffected > 0) {
-                    System.out.println(" Matchmaking done. Showing matched mentors:");
+                    System.out.println("Matchmaking done. Showing matched mentors:");
                     showMatchedMentors(student_id);
                 } else {
-                    System.out.println(" No mentors matched for the student.");
+                    System.out.println("No mentors matched for the student.");
                 }
             }
 
         } catch (SQLException e) {
-            System.err.println(" Error during matchmaking: " + e.getMessage());
+            e.printStackTrace();
         }
     }
 

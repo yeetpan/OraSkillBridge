@@ -2,7 +2,7 @@ package com.skillbridge.queries;
 
 public class ApplicationQueries {
     public static final String INSERT =
-            "INSERT INTO Application (student_id, internship_id, status) VALUES (?, ?, ?)";
+            "INSERT INTO Application (application_id, student_id, internship_id, status) VALUES (application_seq.NEXTVAL, ?, ?, ?)";
 
     public static final String GET_BY_STUDENT =
             "SELECT * FROM Application WHERE student_id = ?";

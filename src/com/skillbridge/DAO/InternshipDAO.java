@@ -57,7 +57,6 @@ public class InternshipDAO {
                 String description = (clob != null) ? clob.getSubString(1, (int) clob.length()) : null;
 
                 Date deadline = rs.getDate("deadline");
-                System.out.println("Read internship from DB: " + title + " at " + orgName);
                 Internship internship = new Internship(orgName, title, capacity, description, deadline);
                 internship.setInternship_id(rs.getInt("internship_id"));
                 internships.add(internship);

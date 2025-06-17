@@ -56,7 +56,7 @@ public class FeedbackDAO {
             feedback.setBookingId(rs.getInt("booking_id"));
 
             // Handle nullable student_id
-            int studentIdFromDb = rs.getInt("student_id");
+            int studentIdFromDb = studentId;
             if (rs.wasNull()) {
                 feedback.setStudentId(null);
             } else {

@@ -77,7 +77,9 @@ public class SessionBookingService {
 
     private static void logToFile(String log) {
         try (FileWriter writer = new FileWriter(LOG_FILE, true)) {
-            writer.write(log + "\n");
+            String timestamp = java.time.LocalDateTime.now()
+                    .format(java.time.format.DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
+            writer.write("[" + timestamp + "] " + log + "\n");
         } catch (IOException e) {
             System.err.println("Logging failed: " + e.getMessage());
         }

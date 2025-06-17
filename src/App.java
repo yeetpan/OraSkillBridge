@@ -49,8 +49,8 @@
                 } catch (InvalidMenuChoiceException | StudentNotFoundException | MentorNotFoundException e) {
                     System.out.println(e.getMessage());
                 } catch (SQLException e) {
-                    System.out.println("Database Error: " + e.getMessage());
-                    ///e.printStackTrace() -> for debugging code when something goes wrong.
+                   // System.out.println("Database Error: " + e.getMessage());
+                    e.printStackTrace();
                 }
             }
         }
@@ -101,11 +101,17 @@
                             String response = SessionBookingService.bookSession(studentId, mentorId, slotId);
                             System.out.println(response);
                         }
-                        case 4 -> SessionDAO.getSessionsByStudent(studentId).forEach(System.out::println);
+                        case 4 -> {
+                            ArrayList<Session> sessions=SessionDAO.getSessionsByStudent(studentId);
+                            for(Session session:sessions){
+                                System.out.println(session.toString());
+                            }
+                        }
                         case 5 -> {
-                            var sessions = SessionDAO.getSessionsByBookingId(studentId);
-                            sessions.forEach(System.out::println);
-
+                            ArrayList<Session> sessions=SessionDAO.getSessionsByStudent(studentId);
+                            for(Session session:sessions){
+                                System.out.println(session.toString());
+                            }
                             System.out.print("Enter Booking ID: ");
                             int bookingId = sc.nextInt();
                             System.out.print("Enter Rating (1-5): ");

@@ -3,7 +3,7 @@ package com.skillbridge.queries;
 public class MentorQueries {
     // Insert a new mentor
     public static final String insert =
-            "INSERT INTO Mentor (name, email, expertise_id) VALUES (?, ?, ?)";
+            "INSERT INTO mentor (mentor_id, name, email, expertise_id) VALUES (mentor_seq.NEXTVAL, ?, ?, ?)";
 
     // Get all mentors
     public static final String get_all =
