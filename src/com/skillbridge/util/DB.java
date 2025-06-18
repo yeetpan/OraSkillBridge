@@ -11,7 +11,7 @@ public class DB {
 public static Connection connect(){
     try{
          connection=DriverManager.getConnection(url,username,password);
-        System.out.println("Connected to DB: " + connection.getMetaData().getURL());
+
     }catch (SQLException e){
         System.out.println(e.getMessage());
     }

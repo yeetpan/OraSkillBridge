@@ -4,6 +4,7 @@ public class FeedBackQueries {
     public static final String INSERT =
             "INSERT INTO Feedback (booking_id, student_id, rating, comments) VALUES (?, ?, ?, ?)";
 
+
     public static final String GET_BY_STUDENT =
             "SELECT * FROM Feedback WHERE student_id = ?";
 

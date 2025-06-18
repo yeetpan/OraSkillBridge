@@ -32,13 +32,9 @@ public class FeedbackDAO {
                 System.out.println("Feedback inserted successfully!!");
             }
 
-            ResultSet rs = preparedStatement.getGeneratedKeys();
-            if (rs.next()) {
-                feedback.setFeedbackId(rs.getInt(1));
-            }
             preparedStatement.close();
         } catch (SQLException e) {
-            System.out.println(e.getMessage());
+            e.printStackTrace();
         }
     }
 

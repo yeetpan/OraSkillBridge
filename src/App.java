@@ -128,7 +128,7 @@
                     }
 
                 } catch (InvalidMenuChoiceException | SlotUnavailableException | InvalidRatingException e) {
-                    System.out.println(e.getMessage());
+                    e.printStackTrace();
                 }
             }
         }

@@ -20,10 +20,10 @@ public class InternshipDAO {
             ps.setString(2, internship.getTitle());
             ps.setInt(3, internship.getCapacity());
 
-            // ✅ For Oracle CLOB
+
             ps.setCharacterStream(4, new StringReader(internship.getDescription()));
 
-            // ✅ For Oracle DATE
+
             ps.setDate(5, new java.sql.Date(internship.getDeadline().getTime()));
 
             int rows = ps.executeUpdate();
@@ -52,7 +52,7 @@ public class InternshipDAO {
                 String title = rs.getString("title");
                 int capacity = rs.getInt("capacity");
 
-                // ✅ Read CLOB safely
+
                 Clob clob = rs.getClob("description");
                 String description = (clob != null) ? clob.getSubString(1, (int) clob.length()) : null;
 

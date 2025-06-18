@@ -1,4 +1,5 @@
 Student Charlie Davis booked slot 2 with Mentor Veluguri Sathish
 [2025-06-17 10:12:23] Student Tel Aviv booked slot 3 with Mentor Dr. Emily Ray
 [2025-06-17 10:34:44] Student arijit singh booked slot 3 with Mentor Dr. Emily Ray
-[2025-06-17 12:18:18] Student Hymadh Shaikh booked slot 5 with Mentor Ms. Sarah Kim
+[2025-06-18 13:22:16] Student hymadh booked slot 5 with Mentor Michael Lee
+[2025-06-18 13:33:20] Student Shiv booked slot 6 with Mentor Santhosh

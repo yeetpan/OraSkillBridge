@@ -1,259 +1,250 @@
 -- === SEQUENCES ===
-CREATE SEQUENCE student_seq START WITH 1 INCREMENT BY 1;
-CREATE SEQUENCE mentor_seq START WITH 1 INCREMENT BY 1;
-CREATE SEQUENCE internship_seq START WITH 1 INCREMENT BY 1;
-CREATE SEQUENCE application_seq START WITH 1 INCREMENT BY 1;
-CREATE SEQUENCE feedback_seq START WITH 1 INCREMENT BY 1;
-CREATE SEQUENCE interest_seq START WITH 1 INCREMENT BY 1;
-CREATE SEQUENCE matchmaking_seq START WITH 1 INCREMENT BY 1;
-CREATE SEQUENCE session_slot_seq START WITH 1 INCREMENT BY 1;
-CREATE SEQUENCE stu_session_seq START WITH 1 INCREMENT BY 1;
+CREATE SEQUENCE interests_seq START WITH 1 INCREMENT BY 1 NOCACHE;
+CREATE SEQUENCE student_seq START WITH 1 INCREMENT BY 1 NOCACHE;
+CREATE SEQUENCE internship_seq START WITH 1 INCREMENT BY 1 NOCACHE;
+CREATE SEQUENCE mentor_seq START WITH 1 INCREMENT BY 1 NOCACHE;
+CREATE SEQUENCE session_slot_seq START WITH 1 INCREMENT BY 1 NOCACHE;
+CREATE SEQUENCE application_seq START WITH 1 INCREMENT BY 1 NOCACHE;
+CREATE SEQUENCE stu_session_seq START WITH 1 INCREMENT BY 1 NOCACHE;
+CREATE SEQUENCE feedback_seq START WITH 1 INCREMENT BY 1 NOCACHE;
+CREATE SEQUENCE matchmaking_seq START WITH 1 INCREMENT BY 1 NOCACHE;
 
--- === TABLES ===
-
--- Independent
+-- === TABLE CREATION ===
+-- 1. Interests (Independent)
 CREATE TABLE Interests (
     interest_id NUMBER PRIMARY KEY,
-    interest_name VARCHAR2(100)
+    interest_name VARCHAR2(100) NOT NULL
 );
 
+-- Trigger for Interests
+CREATE OR REPLACE TRIGGER interests_trigger
+BEFORE INSERT ON Interests
+FOR EACH ROW
+BEGIN
+    :NEW.interest_id := interests_seq.NEXTVAL;
+END;
+/
+
+-- 2. Student (Independent)
 CREATE TABLE Student (
     student_id NUMBER PRIMARY KEY,
-    name VARCHAR2(100),
-    email VARCHAR2(100),
+    name VARCHAR2(100) NOT NULL,
+    email VARCHAR2(100) UNIQUE NOT NULL,
     college VARCHAR2(100)
 );
 
--- Dependent on Interests and Student
-CREATE TABLE Student_Interests (
-    student_id NUMBER REFERENCES Student(student_id),
-    interest_id NUMBER REFERENCES Interests(interest_id),
-    PRIMARY KEY(student_id, interest_id)
-);
+-- Trigger for Student
+CREATE OR REPLACE TRIGGER student_trigger
+BEFORE INSERT ON Student
+FOR EACH ROW
+BEGIN
+    :NEW.student_id := student_seq.NEXTVAL;
+END;
+/
 
--- Dependent on Interests
-CREATE TABLE Mentor (
-    mentor_id NUMBER PRIMARY KEY,
-    name VARCHAR2(100),
-    email VARCHAR2(100),
-    expertise_id NUMBER REFERENCES Interests(interest_id)
-);
-
--- Independent
+-- 3. Internship (Independent)
 CREATE TABLE Internship (
     internship_id NUMBER PRIMARY KEY,
-    org_name VARCHAR2(100),
-    title VARCHAR2(100),
-    capacity NUMBER,
+    org_name VARCHAR2(100) NOT NULL,
+    title VARCHAR2(100) NOT NULL,
+    capacity NUMBER NOT NULL,
     description CLOB,
     deadline DATE
 );
 
--- Dependent on Student and Internship
-CREATE TABLE Application (
-    application_id NUMBER PRIMARY KEY,
-    student_id NUMBER REFERENCES Student(student_id),
-    internship_id NUMBER REFERENCES Internship(internship_id),
-    status VARCHAR2(50)
-);
-
--- Dependent on Mentor
-CREATE TABLE Session_Slot (
-    slot_id NUMBER PRIMARY KEY,
-    mentor_id NUMBER REFERENCES Mentor(mentor_id),
-    session_date DATE,
-    time TIMESTAMP,
-    duration NUMBER,
-    status VARCHAR2(20)
-);
-
--- Dependent on Student, Mentor, Session_Slot
-CREATE TABLE Stu_Session (
-    booking_id NUMBER PRIMARY KEY,
-    slot_id NUMBER REFERENCES Session_Slot(slot_id),
-    student_id NUMBER REFERENCES Student(student_id),
-    mentor_id NUMBER REFERENCES Mentor(mentor_id),
-    booking_status VARCHAR2(50)
-);
-
--- Dependent on Stu_Session, Student
-CREATE TABLE Feedback (
-    feedback_id NUMBER PRIMARY KEY,
-    booking_id NUMBER REFERENCES Stu_Session(booking_id),
-    student_id NUMBER REFERENCES Student(student_id),
-    rating NUMBER,
-    comments VARCHAR2(400)
-);
-
--- Dependent on Student, Mentor, Interest
-CREATE TABLE Matchmaking (
-    matchmaking_id NUMBER PRIMARY KEY,
-    student_id NUMBER(10) NOT NULL,
-    mentor_id NUMBER(10) NOT NULL,
-    interest_id NUMBER(10) NOT NULL,
-    mentor_name VARCHAR2(100),
-    interest_name VARCHAR2(100),
-    CONSTRAINT matchmaking_fk1 FOREIGN KEY (student_id) REFERENCES Student(student_id),
-    CONSTRAINT matchmaking_fk2 FOREIGN KEY (mentor_id) REFERENCES Mentor(mentor_id),
-    CONSTRAINT matchmaking_fk3 FOREIGN KEY (interest_id) REFERENCES Interests(interest_id)
-);
-
--- === TRIGGERS ===
-
-CREATE OR REPLACE TRIGGER trg_student_id
-BEFORE INSERT ON Student
-FOR EACH ROW
-BEGIN
-  IF :new.student_id IS NULL THEN
-    SELECT student_seq.NEXTVAL INTO :new.student_id FROM dual;
-  END IF;
-END;
-/
-
-CREATE OR REPLACE TRIGGER trg_mentor_id
-BEFORE INSERT ON Mentor
-FOR EACH ROW
-BEGIN
-  IF :new.mentor_id IS NULL THEN
-    SELECT mentor_seq.NEXTVAL INTO :new.mentor_id FROM dual;
-  END IF;
-END;
-/
-
-CREATE OR REPLACE TRIGGER trg_internship_id
+-- Trigger for Internship
+CREATE OR REPLACE TRIGGER internship_trigger
 BEFORE INSERT ON Internship
 FOR EACH ROW
 BEGIN
-  IF :new.internship_id IS NULL THEN
-    SELECT internship_seq.NEXTVAL INTO :new.internship_id FROM dual;
-  END IF;
+    :NEW.internship_id := internship_seq.NEXTVAL;
 END;
 /
 
-CREATE OR REPLACE TRIGGER trg_application_id
-BEFORE INSERT ON Application
+-- 4. Student_Interests (Dependent on Interests and Student)
+CREATE TABLE Student_Interests (
+    student_id NUMBER NOT NULL,
+    interest_id NUMBER NOT NULL,
+    PRIMARY KEY (student_id, interest_id),
+    CONSTRAINT fk_student_interests_student FOREIGN KEY (student_id) REFERENCES Student(student_id) ON DELETE CASCADE,
+    CONSTRAINT fk_student_interests_interest FOREIGN KEY (interest_id) REFERENCES Interests(interest_id) ON DELETE CASCADE
+);
+
+-- 5. Mentor (Dependent on Interests)
+CREATE TABLE Mentor (
+    mentor_id NUMBER PRIMARY KEY,
+    name VARCHAR2(100) NOT NULL,
+    email VARCHAR2(100) UNIQUE NOT NULL,
+    expertise_id NUMBER NOT NULL,
+    CONSTRAINT fk_mentor_expertise FOREIGN KEY (expertise_id) REFERENCES Interests(interest_id) ON DELETE CASCADE
+);
+
+-- Trigger for Mentor
+CREATE OR REPLACE TRIGGER mentor_trigger
+BEFORE INSERT ON Mentor
 FOR EACH ROW
 BEGIN
-  IF :new.application_id IS NULL THEN
-    SELECT application_seq.NEXTVAL INTO :new.application_id FROM dual;
-  END IF;
+    :NEW.mentor_id := mentor_seq.NEXTVAL;
 END;
 /
 
-CREATE OR REPLACE TRIGGER trg_feedback_id
-BEFORE INSERT ON Feedback
+-- 6. Matchmaking (Internal table, no foreign key constraints)
+CREATE TABLE Matchmaking (
+    match_id NUMBER PRIMARY KEY,
+    student_id NUMBER NOT NULL,
+    mentor_id NUMBER NOT NULL,
+    mentor_name VARCHAR2(100) NOT NULL,
+    interest_id NUMBER NOT NULL,
+    interest_name VARCHAR2(100) NOT NULL
+);
+
+-- Trigger for Matchmaking
+CREATE OR REPLACE TRIGGER matchmaking_trigger
+BEFORE INSERT ON Matchmaking
 FOR EACH ROW
 BEGIN
-  IF :new.feedback_id IS NULL THEN
-    SELECT feedback_seq.NEXTVAL INTO :new.feedback_id FROM dual;
-  END IF;
+    :NEW.match_id := matchmaking_seq.NEXTVAL;
 END;
 /
 
-CREATE OR REPLACE TRIGGER trg_interest_id
-BEFORE INSERT ON Interests
-FOR EACH ROW
-BEGIN
-  IF :new.interest_id IS NULL THEN
-    SELECT interest_seq.NEXTVAL INTO :new.interest_id FROM dual;
-  END IF;
-END;
-/
+-- 7. Session_Slot (Dependent on Mentor)
+CREATE TABLE Session_Slot (
+    slot_id NUMBER PRIMARY KEY,
+    mentor_id NUMBER NOT NULL,
+    session_date DATE NOT NULL,
+    time TIMESTAMP NOT NULL,
+    duration NUMBER NOT NULL,
+    status VARCHAR2(20),
+    CONSTRAINT fk_session_slot_mentor FOREIGN KEY (mentor_id) REFERENCES Mentor(mentor_id) ON DELETE CASCADE
+);
 
-CREATE OR REPLACE TRIGGER trg_session_slot_id
+-- Trigger for Session_Slot
+CREATE OR REPLACE TRIGGER session_slot_trigger
 BEFORE INSERT ON Session_Slot
 FOR EACH ROW
 BEGIN
-  IF :new.slot_id IS NULL THEN
-    SELECT session_slot_seq.NEXTVAL INTO :new.slot_id FROM dual;
-  END IF;
+    :NEW.slot_id := session_slot_seq.NEXTVAL;
 END;
 /
 
-CREATE OR REPLACE TRIGGER trg_stu_session_id
+-- 8. Application (Dependent on Student and Internship)
+CREATE TABLE Application (
+    application_id NUMBER PRIMARY KEY,
+    student_id NUMBER NOT NULL,
+    internship_id NUMBER NOT NULL,
+    status VARCHAR2(50),
+    CONSTRAINT fk_application_student FOREIGN KEY (student_id) REFERENCES Student(student_id) ON DELETE CASCADE,
+    CONSTRAINT fk_application_internship FOREIGN KEY (internship_id) REFERENCES Internship(internship_id) ON DELETE CASCADE
+);
+
+-- Trigger for Application
+CREATE OR REPLACE TRIGGER application_trigger
+BEFORE INSERT ON Application
+FOR EACH ROW
+BEGIN
+    :NEW.application_id := application_seq.NEXTVAL;
+END;
+/
+
+-- 9. Stu_Session (Dependent on Student, Mentor, Session_Slot)
+CREATE TABLE Stu_Session (
+    booking_id NUMBER PRIMARY KEY,
+    slot_id NUMBER NOT NULL,
+    student_id NUMBER NOT NULL,
+    mentor_id NUMBER NOT NULL,
+    booking_status VARCHAR2(50),
+    CONSTRAINT fk_stu_session_slot FOREIGN KEY (slot_id) REFERENCES Session_Slot(slot_id) ON DELETE CASCADE,
+    CONSTRAINT fk_stu_session_student FOREIGN KEY (student_id) REFERENCES Student(student_id) ON DELETE CASCADE,
+    CONSTRAINT fk_stu_session_mentor FOREIGN KEY (mentor_id) REFERENCES Mentor(mentor_id) ON DELETE CASCADE
+);
+
+-- Trigger for Stu_Session
+CREATE OR REPLACE TRIGGER stu_session_trigger
 BEFORE INSERT ON Stu_Session
 FOR EACH ROW
 BEGIN
-  IF :new.booking_id IS NULL THEN
-    SELECT stu_session_seq.NEXTVAL INTO :new.booking_id FROM dual;
-  END IF;
+    :NEW.booking_id := stu_session_seq.NEXTVAL;
+END;
+/
+
+-- 10. Feedback (Dependent on Stu_Session, Student)
+CREATE TABLE Feedback (
+    feedback_id NUMBER PRIMARY KEY,
+    booking_id NUMBER NOT NULL,
+    student_id NUMBER NOT NULL,
+    rating NUMBER NOT NULL,
+    comments VARCHAR2(400),
+    CONSTRAINT fk_feedback_booking FOREIGN KEY (booking_id) REFERENCES Stu_Session(booking_id) ON DELETE CASCADE,
+    CONSTRAINT fk_feedback_student FOREIGN KEY (student_id) REFERENCES Student(student_id) ON DELETE CASCADE
+);
+
+-- Trigger for Feedback
+CREATE OR REPLACE TRIGGER feedback_trigger
+BEFORE INSERT ON Feedback
+FOR EACH ROW
+BEGIN
+    :NEW.feedback_id := feedback_seq.NEXTVAL;
 END;
 /
 
 -- === DATA INSERTION ===
-
--- Interests
-INSERT INTO Interests (interest_name) VALUES ('AI/ML');
+-- 1. Interests
+INSERT INTO Interests (interest_name) VALUES ('Database Systems');
 INSERT INTO Interests (interest_name) VALUES ('Web Development');
-INSERT INTO Interests (interest_name) VALUES ('Cybersecurity');
-INSERT INTO Interests (interest_name) VALUES ('Data Science');
+INSERT INTO Interests (interest_name) VALUES ('Machine Learning');
 INSERT INTO Interests (interest_name) VALUES ('Cloud Computing');
-INSERT INTO Interests (interest_name) VALUES ('DevOps');
-INSERT INTO Interests (interest_name) VALUES ('Mobile App Development');
-INSERT INTO Interests (interest_name) VALUES ('Blockchain');
-INSERT INTO Interests (interest_name) VALUES ('Internet of Things');
-INSERT INTO Interests (interest_name) VALUES ('Augmented Reality');
-INSERT INTO Interests (interest_name) VALUES ('Virtual Reality');
-INSERT INTO Interests (interest_name) VALUES ('Game Development');
-INSERT INTO Interests (interest_name) VALUES ('Big Data');
-INSERT INTO Interests (interest_name) VALUES ('Robotics');
-INSERT INTO Interests (interest_name) VALUES ('Quantum Computing');
-INSERT INTO Interests (interest_name) VALUES ('UI/UX Design');
-INSERT INTO Interests (interest_name) VALUES ('Network Administration');
-INSERT INTO Interests (interest_name) VALUES ('Database Management');
-INSERT INTO Interests (interest_name) VALUES ('Software Testing');
 
--- Students
-INSERT INTO Student (name, email, college) VALUES ('Alice Johnson', 'alice@example.com', 'XYZ University');
-INSERT INTO Student (name, email, college) VALUES ('Bob Smith', 'bob@example.com', 'ABC Institute');
-INSERT INTO Student (name, email, college) VALUES ('Charlie Davis', 'charlie@edu.org', 'Tech University');
-INSERT INTO Student (name, email, college) VALUES ('Diana Lee', 'diana@campusmail.com', 'MIT');
-INSERT INTO Student (name, email, college) VALUES ('Ethan Hunt', 'ethan@uniworld.edu', 'Stanford University');
+-- 2. Student
+INSERT INTO Student (name, email, college) VALUES ('John Doe', 'john.doe@example.com', 'Tech University');
+INSERT INTO Student (name, email, college) VALUES ('Alice Smith', 'alice.smith@example.com', 'Innovate College');
+INSERT INTO Student (name, email, college) VALUES ('Bob Johnson', 'bob.johnson@example.com', 'Future Institute');
+INSERT INTO Student (name, email, college) VALUES ('Emma Brown', 'emma.brown@example.com', 'Tech University');
 
--- Mentors (after Interests)
-INSERT INTO Mentor (name, email, expertise_id) VALUES ('Dr. Emily Ray', 'emily@mentors.com', 1);
-INSERT INTO Mentor (name, email, expertise_id) VALUES ('Mr. John Doe', 'john@mentors.com', 3);
-INSERT INTO Mentor (name, email, expertise_id) VALUES ('Ms. Sarah Kim', 'sarah.kim@mentors.com', 2);
-INSERT INTO Mentor (name, email, expertise_id) VALUES ('Prof. Anil Mehta', 'anil@iit.edu', 4);
-INSERT INTO Mentor (name, email, expertise_id) VALUES ('Dr. Julia Stone', 'jstone@mentorhub.com', 5);
-
--- Internships
+-- 3. Internship
 INSERT INTO Internship (org_name, title, capacity, description, deadline)
-VALUES ('Tech Corp', 'Backend Developer Intern', 3, 'Work on backend APIs and microservices.', TO_DATE('2025-07-15', 'YYYY-MM-DD'));
-
+VALUES ('Tech Corp', 'Database Intern', 5, 'Work on database optimization projects.', TO_DATE('2025-07-01', 'YYYY-MM-DD'));
 INSERT INTO Internship (org_name, title, capacity, description, deadline)
-VALUES ('CyberSecure Inc.', 'Security Analyst Intern', 2, 'Assist in penetration testing and audit logs.', TO_DATE('2025-08-01', 'YYYY-MM-DD'));
-
+VALUES ('Web Innovators', 'Frontend Developer', 3, 'Develop responsive web applications.', TO_DATE('2025-06-30', 'YYYY-MM-DD'));
 INSERT INTO Internship (org_name, title, capacity, description, deadline)
-VALUES ('AI Labs', 'ML Research Intern', 4, 'Support in model training and evaluation.', TO_DATE('2025-07-30', 'YYYY-MM-DD'));
+VALUES ('AI Solutions', 'ML Engineer', 4, 'Build machine learning models.', TO_DATE('2025-08-15', 'YYYY-MM-DD'));
 
-INSERT INTO Internship (org_name, title, capacity, description, deadline)
-VALUES ('WebSolutions', 'Frontend Developer Intern', 5, 'Build responsive web interfaces.', TO_DATE('2025-07-25', 'YYYY-MM-DD'));
+-- 4. Student_Interests
+INSERT INTO Student_Interests (student_id, interest_id) VALUES (1, 1); -- John: Database Systems
+INSERT INTO Student_Interests (student_id, interest_id) VALUES (1, 2); -- John: Web Development
+INSERT INTO Student_Interests (student_id, interest_id) VALUES (2, 2); -- Alice: Web Development
+INSERT INTO Student_Interests (student_id, interest_id) VALUES (2, 3); -- Alice: Machine Learning
+INSERT INTO Student_Interests (student_id, interest_id) VALUES (3, 3); -- Bob: Machine Learning
+INSERT INTO Student_Interests (student_id, interest_id) VALUES (4, 1); -- Emma: Database Systems
 
-INSERT INTO Internship (org_name, title, capacity, description, deadline)
-VALUES ('HealthTech AI', 'Data Science Intern', 2, 'Analyze medical data trends.', TO_DATE('2025-08-05', 'YYYY-MM-DD'));
+-- 5. Mentor
+INSERT INTO Mentor (name, email, expertise_id) VALUES ('Jane Smith', 'jane.smith@example.com', 1); -- Database Systems
+INSERT INTO Mentor (name, email, expertise_id) VALUES ('Michael Lee', 'michael.lee@example.com', 2); -- Web Development
+INSERT INTO Mentor (name, email, expertise_id) VALUES ('Sarah Davis', 'sarah.davis@example.com', 3); -- Machine Learning
+INSERT INTO Mentor (name, email, expertise_id) VALUES ('David Wilson', 'david.wilson@example.com', 1); -- Database Systems
 
--- Applications
-INSERT INTO Application (student_id, internship_id, status) VALUES (1, 1, 'Applied');
-INSERT INTO Application (student_id, internship_id, status) VALUES (2, 2, 'Applied');
-INSERT INTO Application (student_id, internship_id, status) VALUES (3, 3, 'Applied');
-INSERT INTO Application (student_id, internship_id, status) VALUES (4, 1, 'Applied');
-
--- Session Slots
+-- 6. Session_Slot
 INSERT INTO Session_Slot (mentor_id, session_date, time, duration, status)
-VALUES (1, TO_DATE('2025-06-20', 'YYYY-MM-DD'), TO_TIMESTAMP('2025-06-20 10:00:00', 'YYYY-MM-DD HH24:MI:SS'), 60, 'Available');
-
+VALUES (1, TO_DATE('2025-06-20', 'YYYY-MM-DD'), TO_TIMESTAMP('2025-06-20 10:00:00', 'YYYY-MM-DD HH24:MI:SS'), 60, 'AVAILABLE');
 INSERT INTO Session_Slot (mentor_id, session_date, time, duration, status)
-VALUES (2, TO_DATE('2025-06-21', 'YYYY-MM-DD'), TO_TIMESTAMP('2025-06-21 14:00:00', 'YYYY-MM-DD HH24:MI:SS'), 45, 'Available');
-
+VALUES (2, TO_DATE('2025-06-21', 'YYYY-MM-DD'), TO_TIMESTAMP('2025-06-21 14:00:00', 'YYYY-MM-DD HH24:MI:SS'), 45, 'AVAILABLE');
 INSERT INTO Session_Slot (mentor_id, session_date, time, duration, status)
-VALUES (3, TO_DATE('2025-06-22', 'YYYY-MM-DD'), TO_TIMESTAMP('2025-06-22 09:30:00', 'YYYY-MM-DD HH24:MI:SS'), 30, 'Booked');
+VALUES (3, TO_DATE('2025-06-22', 'YYYY-MM-DD'), TO_TIMESTAMP('2025-06-22 09:00:00', 'YYYY-MM-DD HH24:MI:SS'), 90, 'BOOKED');
 
-INSERT INTO Session_Slot (mentor_id, session_date, time, duration, status)
-VALUES (4, TO_DATE('2025-06-23', 'YYYY-MM-DD'), TO_TIMESTAMP('2025-06-23 15:00:00', 'YYYY-MM-DD HH24:MI:SS'), 60, 'Available');
+-- 7. Application
+INSERT INTO Application (student_id, internship_id, status) VALUES (1, 1, 'PENDING'); -- John: Database Intern
+INSERT INTO Application (student_id, internship_id, status) VALUES (2, 2, 'ACCEPTED'); -- Alice: Frontend Developer
+INSERT INTO Application (student_id, internship_id, status) VALUES (3, 3, 'REJECTED'); -- Bob: ML Engineer
+INSERT INTO Application (student_id, internship_id, status) VALUES (4, 1, 'PENDING'); -- Emma: Database Intern
 
-INSERT INTO Session_Slot (mentor_id, session_date, time, duration, status)
-VALUES (5, TO_DATE('2025-06-24', 'YYYY-MM-DD'), TO_TIMESTAMP('2025-06-24 11:00:00', 'YYYY-MM-DD HH24:MI:SS'), 30, 'Available');
+-- 8. Stu_Session
+INSERT INTO Stu_Session (slot_id, student_id, mentor_id, booking_status) VALUES (1, 1, 1, 'CONFIRMED'); -- John with Jane
+INSERT INTO Stu_Session (slot_id, student_id, mentor_id, booking_status) VALUES (2, 2, 2, 'CONFIRMED'); -- Alice with Michael
+INSERT INTO Stu_Session (slot_id, student_id, mentor_id, booking_status) VALUES (3, 3, 3, 'CANCELLED'); -- Bob with Sarah
+
+-- 9. Feedback
+INSERT INTO Feedback (booking_id, student_id, rating, comments) VALUES (1, 1, 5, 'Great session on database optimization!');
+INSERT INTO Feedback (booking_id, student_id, rating, comments) VALUES (2, 2, 4, 'Very helpful for web development.');
+INSERT INTO Feedback (booking_id, student_id, rating, comments) VALUES (3, 3, 3, 'Session was cancelled, but mentor was prepared.');
 
 -- COMMIT CHANGES
 COMMIT;
